@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { IResourceComponentsProps, useTranslate } from "@refinedev/core";
 import { Create, useForm, useSelect } from "@refinedev/antd";
-import { Form, Input, Select, InputNumber, ColorPicker } from "antd";
+import { Form, Input, Select, InputNumber, ColorPicker, Button } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { numberFormatter, numberParser } from "../../utils/parsing";
 import { IVendor } from "../vendors/model";
 import { IFilament } from "./model";
+import { CameraOutlined } from "@ant-design/icons";
+import UPCScannerModal from "../../components/UPCScanner";
 
 interface CreateOrCloneProps {
   mode: "create" | "clone";
@@ -27,6 +29,23 @@ export const FilamentCreate: React.FC<IResourceComponentsProps & CreateOrClonePr
     resource: "vendor",
     optionLabel: "name",
   });
+
+  const [isScannerVisible, setIsScannerVisible] = useState(false);
+  const [codeValue, setCodeValue] = useState('');
+
+  const showScanner = () => {
+    setIsScannerVisible(true);
+  };
+
+  const onScan = (returnValue: string) => {
+    console.log(returnValue)
+    setCodeValue(returnValue);
+    setIsScannerVisible(false);
+  };
+
+  const onCancel = () => {
+    setIsScannerVisible(false);
+  };
 
   return (
     <Create
@@ -201,7 +220,12 @@ export const FilamentCreate: React.FC<IResourceComponentsProps & CreateOrClonePr
             },
           ]}
         >
-          <Input maxLength={64} />
+          <Input
+            value={codeValue}
+            addonAfter={
+              <Button type="text" style={{ padding: 0 }} onClick={showScanner}><CameraOutlined /></Button>
+            }
+            maxLength={64} />
         </Form.Item>
         <Form.Item
           label={t("filament.fields.comment")}
@@ -215,6 +239,11 @@ export const FilamentCreate: React.FC<IResourceComponentsProps & CreateOrClonePr
           <TextArea maxLength={1024} />
         </Form.Item>
       </Form>
+      <UPCScannerModal
+        visible={isScannerVisible}
+        onScan={onScan}
+        onCancel={onCancel}
+      ></UPCScannerModal>
     </Create>
   );
 };
