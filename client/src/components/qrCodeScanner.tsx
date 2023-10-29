@@ -18,6 +18,15 @@ const QRCodeScannerModal: React.FC = () => {
       setVisible(false);
       navigate(`/spool/show/${match.groups.id}`);
     }
+    const locationMatch = result.match(/^web\+spoolman:l-(?<name>.*)$/);
+    if (locationMatch && locationMatch.groups) {
+      setVisible(false);
+      if (window.location.pathname.endsWith('spool')) {
+        // refresh page because filter update doesn't propagate - do this better
+        window.location.reload();
+      }
+      navigate(`/spool#filters=[{"field":"location","operator":"in","value":["${locationMatch.groups.name}"]}]`);
+    }
   };
 
   return (
@@ -30,17 +39,17 @@ const QRCodeScannerModal: React.FC = () => {
             viewFinder={
               lastError
                 ? () => (
-                    <div
-                      style={{
-                        position: "absolute",
-                        textAlign: "center",
-                        width: "100%",
-                        top: "50%",
-                      }}
-                    >
-                      <p>{lastError}</p>
-                    </div>
-                  )
+                  <div
+                    style={{
+                      position: "absolute",
+                      textAlign: "center",
+                      width: "100%",
+                      top: "50%",
+                    }}
+                  >
+                    <p>{lastError}</p>
+                  </div>
+                )
                 : undefined
             }
             onDecode={onScan}
